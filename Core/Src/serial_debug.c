@@ -61,13 +61,10 @@ volatile uint16_t pos_debug = 0;
 
 uint8_t debug_buffer[2048];
 
-bool UART_Debug_Transmit(UART_HandleTypeDef* huart) {
-    if (huart == &UartDebug) {
+void UART_Debug_Transmit(UART_HandleTypeDef* huart) {
         debug_uart_run = false;
         flush_debug();
         return true;
-    }
-    return false;
 }
 
 void flush_debug() {

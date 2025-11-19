@@ -28,6 +28,12 @@
     __set_PRIMASK(1);
 #endif
 
+#if !defined(critical_stop)
+//в рабочей версии сделать нормальный обработчик критических ошибок!!!!
+#define critical_stop() Error_Handler()
+//#define critical_stop() (void) (0)
+#endif
+
 
 #ifdef DEBUG
 //write debug to USART
@@ -51,6 +57,31 @@ void flush_debug();
 
 //#define PRINTF_UART PRINTF_UART_POLL
 #define PRINTF_UART PRINTF_UART_IRQ
+
+
+//прерывания UART1 очень низкий приоритет для вывода отладочной информации
+#define USARTx_INT_PRIORITY ((uint32_t) 3)    /// USART1 interrupt priority
+
+#define USARTx USART1
+#define USARTx_CLK_ENABLE() __HAL_RCC_USART1_CLK_ENABLE();
+#define USARTx_CLK_DISABLE() __HAL_RCC_USART1_CLK_DISABLE();
+#define USARTx_RX_GPIO_CLK_ENABLE() __HAL_RCC_GPIOA_CLK_ENABLE()
+#define USARTx_TX_GPIO_CLK_ENABLE() __HAL_RCC_GPIOA_CLK_ENABLE()
+#define USARTx_TX_GPIO_Deinit() HAL_GPIO_DeInit(USARTx_TX_GPIO_PORT, USARTx_TX_PIN)
+
+#define USARTx_FORCE_RESET() __HAL_RCC_USART1_FORCE_RESET()
+#define USARTx_RELEASE_RESET() __HAL_RCC_USART1_RELEASE_RESET()
+#define USARTx_IRQn USART1_IRQn
+
+/* Definition for USARTx Pins */
+#define USARTx_TX_PIN GPIO_PIN_9
+#define USARTx_TX_GPIO_PORT GPIOA
+#define USARTx_TX_AF GPIO_AF1_USART1
+#define USARTx_RX_PIN GPIO_PIN_10
+#define USARTx_RX_GPIO_PORT GPIOA
+#define USARTx_RX_AF GPIO_AF1_USART1
+
+#define UartDebug huart1
 
 #define MP_DEBUG_PRINT(VERBOSE_LEVEL, FMT...)                                                                          \
     if (get_verbose_debug(VERBOSE_LEVEL) && get_debug_comport())                                                       \
