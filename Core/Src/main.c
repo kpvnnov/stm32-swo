@@ -22,6 +22,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "serial_debug.h"
 
 /* USER CODE END Includes */
 

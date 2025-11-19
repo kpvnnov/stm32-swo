@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>stm32f030-bme280-example</name>
+	<name>stm32-swo-example</name>
 	<comment></comment>
 	<projects>
 	</projects>

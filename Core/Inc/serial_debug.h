@@ -2,10 +2,8 @@
 #ifndef __SERIAL_DEBUG_H
 #define __SERIAL_DEBUG_H
 
-#include <stdio.h>
 #include <stdbool.h>
-
-
+#include <stdio.h>
 
 #define DEBUG_ERROR (0)
 #define DEBUG_WARN (1)
@@ -13,24 +11,46 @@
 #define DEBUG_TRACE (3)
 #define DEBUG_HIGH_TRACE (4)
 
+#if !defined(__HAL_ENTER_CRITICAL_SECTION)
+#define __HAL_ENTER_CRITICAL_SECTION()                                                                                 \
+    uint32_t PriMsk;                                                                                                   \
+    PriMsk = __get_PRIMASK();                                                                                          \
+    __set_PRIMASK(1);
+#endif
+#if !defined(__HAL_EXIT_CRITICAL_SECTION)
+#define __HAL_EXIT_CRITICAL_SECTION() __set_PRIMASK(PriMsk);
+#endif
+
+#if !defined(__HAL_LOCAL_ENTER_CRITICAL_SECTION)
+//секция запрета прерывания для повторного использования в функциях, без объявления uint32_t PriMsk;
+#define __HAL_LOCAL_ENTER_CRITICAL_SECTION()                                                                           \
+    PriMsk = __get_PRIMASK();                                                                                          \
+    __set_PRIMASK(1);
+#endif
+
 
 #ifdef DEBUG
-//отладка пишет в USART
+//write debug to USART
 #define COM_PORT_DEBUG
 
-//отладка пишет в Serial Wire Debug (SWD)
+//write debug to Serial Wire Debug (SWD)
 //#define SWO_DEBUG
 
-//если надо принудительно включить отладку в прошивке
+//If you need to force debugging in the firmware
 #define MANUAL_DEBUG_ON 1
 
-//отладка включается в прошивке програмной установкой
+//Debugging is enabled in the firmware by a software setting, for example, a variable that is written to the EEPROM
 //#define MANUAL_DEBUG_ON 0
 
+void flush_debug();
 
+//output debug information in poll mode
+#define PRINTF_UART_POLL 1
+//output debug information in irq mode
+#define PRINTF_UART_IRQ 2
 
-//#define MP_DEBUG_PRINT(VERBOSE_LEVEL,FMT...) printf(__VA_ARGS__)
-//#define MP_DEBUG_PRINT(VERBOSE_LEVEL,FMT...) if (get_verbose_debug(VERBOSE_LEVEL)) printf(__VA_ARGS__)
+//#define PRINTF_UART PRINTF_UART_POLL
+#define PRINTF_UART PRINTF_UART_IRQ
 
 #define MP_DEBUG_PRINT(VERBOSE_LEVEL, FMT...)                                                                          \
     if (get_verbose_debug(VERBOSE_LEVEL) && get_debug_comport())                                                       \
@@ -45,21 +65,22 @@
 
 #if MANUAL_DEBUG_ON == 1
 
-//раскоментировать для установки уровня отладки TRACE
+//uncomment to set debug level to TRACE
 #define get_verbose_debug(debug_level) (debug_level <= DEBUG_TRACE)
 //раскоментировать для установки уровня отладки только ошибок
 //#define get_verbose_debug(debug_level) (debug_level <= DEBUG_INFO)
 //#define get_verbose_debug(debug_level) (debug_level<=DEBUG_WARN)
 //#define get_verbose_debug(debug_level) (debug_level<=DEBUG_ERROR)
 
-//принудительная постоянная установка отладки вручную
+//Force permanent set of debugging manually
 #define get_debug_comport() (true)
 
 #else
 
-//уровень отладки в зависимости от настроек
+//debug level depending on the variable stored in the settings
 #define get_verbose_debug(debug_level) (debug_level <= config.otladka.verbose)
-//вывод отладки в зависимости от настроек
+//Is debug output necessary depending on the variable's value.
+//By setting this variable to 0, you can programmatically disable all debug output.
 #define get_debug_comport() (config.otladka.comport)
 
 #endif
@@ -71,6 +92,4 @@
 
 #endif
 
-
-
-#endif //__SERIAL_DEBUG_H
+#endif    //__SERIAL_DEBUG_H
