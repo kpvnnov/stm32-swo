@@ -37,16 +37,17 @@
 
 #ifdef DEBUG
 //write debug to USART
-#define COM_PORT_DEBUG
+//#define COM_PORT_DEBUG
 
 //write debug to Serial Wire Debug (SWD)
 //#define SWO_DEBUG
 
+#if !defined(MANUAL_DEBUG_ON)
 //If you need to force debugging in the firmware
 #define MANUAL_DEBUG_ON 1
-
 //Debugging is enabled in the firmware by a software setting, for example, a variable that is written to the EEPROM
 //#define MANUAL_DEBUG_ON 0
+#endif
 
 void flush_debug();
 
@@ -55,10 +56,10 @@ void flush_debug();
 //output debug information in irq mode
 #define PRINTF_UART_IRQ 2
 
-//#define PRINTF_UART PRINTF_UART_POLL
+#if !defined(PRINTF_UART)
 #define PRINTF_UART PRINTF_UART_IRQ
-
-
+//#define PRINTF_UART PRINTF_UART_POLL
+#endif
 //прерывания UART1 очень низкий приоритет для вывода отладочной информации
 #define USARTx_INT_PRIORITY ((uint32_t) 3)    /// USART1 interrupt priority
 
@@ -74,19 +75,18 @@ void flush_debug();
 #define USARTx_IRQn USART1_IRQn
 
 /* Definition for USARTx Pins */
-#define USARTx_TX_PIN GPIO_PIN_9
-#define USARTx_TX_GPIO_PORT GPIOA
-#define USARTx_TX_AF GPIO_AF1_USART1
-#define USARTx_RX_PIN GPIO_PIN_10
-#define USARTx_RX_GPIO_PORT GPIOA
-#define USARTx_RX_AF GPIO_AF1_USART1
+//#define USARTx_TX_PIN GPIO_PIN_9
+//#define USARTx_TX_GPIO_PORT GPIOA
+//#define USARTx_TX_AF GPIO_AF1_USART1
+//#define USARTx_RX_PIN GPIO_PIN_10
+//#define USARTx_RX_GPIO_PORT GPIOA
+//#define USARTx_RX_AF GPIO_AF1_USART1
 
-#define UartDebug huart1
-
+ 
 #define MP_DEBUG_PRINT(VERBOSE_LEVEL, FMT...)                                                                          \
     if (get_verbose_debug(VERBOSE_LEVEL) && get_debug_comport())                                                       \
     printf(FMT)
-
+  
 #define MP_DEBUG_DUMP(VERBOSE_LEVEL, BUF, LEN)                                                                         \
     if (get_verbose_debug(VERBOSE_LEVEL) && get_debug_comport())                                                       \
     print_dump(BUF, LEN)
@@ -97,27 +97,34 @@ void flush_debug();
 #if MANUAL_DEBUG_ON == 1
 
 //uncomment to set debug level to TRACE
+#if !defined(get_verbose_debug)
 #define get_verbose_debug(debug_level) (debug_level <= DEBUG_TRACE)
+#endif
 //раскоментировать для установки уровня отладки только ошибок
 //#define get_verbose_debug(debug_level) (debug_level <= DEBUG_INFO)
 //#define get_verbose_debug(debug_level) (debug_level<=DEBUG_WARN)
 //#define get_verbose_debug(debug_level) (debug_level<=DEBUG_ERROR)
 
 //Force permanent set of debugging manually
+#if !defined(get_debug_comport)
 #define get_debug_comport() (true)
+#endif
 
 #else
 
 //debug level depending on the variable stored in the settings
+#if !defined(get_verbose_debug)
 #define get_verbose_debug(debug_level) (debug_level <= config.otladka.verbose)
+#endif
 //Is debug output necessary depending on the variable's value.
 //By setting this variable to 0, you can programmatically disable all debug output.
+#if !defined(get_debug_comport)
 #define get_debug_comport() (config.otladka.comport)
-
+#endif
 #endif
 
 #ifndef DEBUG
-
+  
 #define MP_DEBUG_PRINT(...) (void) (0)
 #define MP_DEBUG_DUMP(VERBOSE_LEVEL, BUF, LEN) (void) (0)
 

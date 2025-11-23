@@ -1,6 +1,7 @@
 //#include <stdio.h>
 #include <errno.h>
 #include <sys/unistd.h>    // STDOUT_FILENO, STDERR_FILENO
+#include <string.h>
 
 #include "main.h"
 #include "serial_debug.h"
@@ -64,7 +65,7 @@ uint8_t debug_buffer[2048];
 void UART_Debug_Transmit(UART_HandleTypeDef* huart) {
         debug_uart_run = false;
         flush_debug();
-        return true;
+        return;
 }
 
 void flush_debug() {
