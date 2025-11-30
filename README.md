@@ -25,5 +25,13 @@ in putty Enable the "Implicit CR in every LF" option https://the.earth.li/~sgtat
 //отладка пишет в Serial Wire Debug (SWD)
 //#define SWO_DEBUG
 
+чтобы в GCC перенаправить вывод printf() необходимо добавить в ключи линкера
+```
+-specs=nosys.specs -specs=nano.specs
+```
+Если будет необходим вывод чисел с плавающей запятой, то нужно не забыть ключ
+```
+-u_printf_float
+
 все остальные файлы демонстрационного проекта показывают вывод отладочной информации 
 по прерыванию на свободный USART на примере st32f030
